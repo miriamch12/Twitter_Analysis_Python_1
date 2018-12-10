@@ -1,0 +1,66 @@
+---
+title: "Final_Project"
+author: "Miriam Nwaru"
+date: "12/7/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load necessary libraries here.
+```{r}
+library(dplyr)
+library(ggformula)
+library(readr)
+
+```
+
+
+Read file
+```{r}
+#read in csv file
+news = read_csv("FoxNews_CNN_clean.csv", n_max = 10500)
+```
+
+View top few rows
+```{r}
+head(news)
+```
+
+Find values for Two-Sample Test for a Difference of Proportions
+```{r}
+length(which(news$News_Org == "FoxNews" & news$SA > 0)) #Number of FoxNews tweets that were positive
+length(which(news$News_Org == "FoxNews")) #Total number of FoxNews tweets
+length(which(news$News_Org == "CNN" & news$SA > 0)) #Number of CNN tweets that were positive
+length(which(news$News_Org == "CNN")) #Total number of CNN tweets
+```
+Run Two-Sample Test for a Difference of Proportions
+```{r}
+prop.test(c(559, 1765), n = c(2376, 6205), alternative = "two.sided")
+```
+Create df to show counts of SA grouped by News Organizations
+```{r}
+news_df <-
+  news %>%
+    group_by(SA, News_Org) %>%
+    summarise(numb = n())
+```
+  
+Create df and Create bar graph
+```{r}
+news_df%>%
+  group_by(News_Org) %>%
+    mutate(countT= sum(numb)) %>% #Count the total for each News Org
+    group_by(SA, add=TRUE) %>%
+    mutate(per=paste0(round(numb/countT,2)))%>% #Calc the prop for each SA divided by each news org total
+    filter(News_Org != "NA")%>% #Remove NAs
+  gf_col(per ~ SA, fill =~ News_Org, position = position_dodge(),data = news_df)%>%
+  gf_labs(
+    title = "Sentiment Analysis of FoxNews vs CNN",
+    x = "SA Categories",  
+    y = "Proportion",
+    fill = "News Organizations"
+  )
+```
