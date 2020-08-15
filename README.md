@@ -1,1 +1,0 @@
-Using python and R, will determine if there’s a difference in the proportion of positive comments a major Conservative news network, Fox News, receives compared to the proportion of positive comments a major Liberal news network, CNN, receives.
